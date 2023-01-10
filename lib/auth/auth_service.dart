@@ -196,6 +196,44 @@ class AuthService {
     }
   }
 
+  // logout api call
+  Future<void> logoutUser(BuildContext context) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+
+      var token = prefs.getString("x-auth-token");
+      if (token == null || token.isEmpty) {
+        await prefs.remove("x-auth-token");
+      }
+
+      http.Response res = await http.post(Uri.parse("$url/api/audition/logout"),
+          headers: <String, String>{
+            "Content-Type": "application/json; charset=UTF-8",
+            "x-auth-token": token!,
+          });
+
+      httpErrorHandel(
+          context: context,
+          res: res,
+          onSuccess: () async {
+            showSnackBar(context, "Logged out");
+            navigatorPop() => Navigator.pop(context);
+
+            navigatorPush() => Navigator.pushNamedAndRemoveUntil(
+                context, MainPage.routeName, (route) => false);
+
+            prefs.setString("x-auth-token", "");
+            prefs.setString("x-studio-token", "");
+            print("ddd");
+            await FirebaseAuth.instance.signOut();
+            navigatorPop();
+            navigatorPush();
+          });
+    } catch (e) {
+      showSnackBar(context, e.toString());
+    }
+  }
+
   // get data and token validation
   Future<dynamic> getUserData(BuildContext context) async {
     try {
@@ -265,10 +303,11 @@ class AuthService {
         }
       }
     } catch (e) {
-      showSnackBar(context, e.toString());
+      // showSnackBar(context, e.toString());
+      print(e.toString());
 
-      Navigator.pushNamedAndRemoveUntil(
-          context, FirstSplashScreen.routeName, (route) => false);
+      // Navigator.pushNamedAndRemoveUntil(
+      //     context, FirstSplashScreen.routeName, (route) => false);
       // print(e.toString());
     }
   }

@@ -693,19 +693,8 @@ class _MyProfilePageState extends State<MyProfilePage>
                             ),
                             InkWell(
                               onTap: () async {
-                                navigatorPop() => Navigator.pop(context);
-
-                                navigatorPush() =>
-                                    Navigator.pushNamedAndRemoveUntil(context,
-                                        MainPage.routeName, (route) => false);
                                 circularProgressIndicatorNew(context);
-                                SharedPreferences prefs =
-                                    await SharedPreferences.getInstance();
-                                prefs.setString("x-auth-token", "");
-                                prefs.setString("x-studio-token", "");
-                                await FirebaseAuth.instance.signOut();
-                                navigatorPop();
-                                navigatorPush();
+                                await AuthService().logoutUser(context);
                               },
                               child: simpleArrowColumn(
                                   screenHeight, screenWidth, "Log Out"),
